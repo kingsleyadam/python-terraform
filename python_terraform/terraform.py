@@ -4,6 +4,7 @@ import os
 import subprocess
 import sys
 import tempfile
+from collections import OrderedDict
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Type, Union
 
 from python_terraform.tfstate import Tfstate
@@ -129,16 +130,17 @@ class Terraform:
     def _generate_default_options(
         self, input_options: Dict[str, Any]
     ) -> Dict[str, Any]:
-        return {
-            "state": self.state,
-            "target": self.targets,
-            "var": self.variables,
-            "var_file": self.var_file,
-            "parallelism": self.parallelism,
-            "no_color": IsFlagged,
-            "input": False,
-            **input_options,
-        }
+        default_options_dict = OrderedDict(**input_options)
+
+        default_options_dict.setdefault('state', self.state)
+        default_options_dict.setdefault('target', self.targets)
+        default_options_dict.setdefault('var_file', self.var_file)
+        default_options_dict.setdefault('var', self.variables)
+        default_options_dict.setdefault('parallelism', self.parallelism)
+        default_options_dict.setdefault('no_color', IsFlagged)
+        default_options_dict.setdefault('input', False)
+
+        return default_options_dict
 
     def destroy(
         self,
